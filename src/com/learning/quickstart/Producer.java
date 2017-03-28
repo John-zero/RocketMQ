@@ -5,6 +5,8 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * 生产者
  * Created by John_zero on 2017/3/24.
@@ -23,6 +25,8 @@ public class Producer
          */
         producer.setInstanceName("Producer");
 
+        producer.setVipChannelEnabled(false);
+
         /**
          * 走起...
          */
@@ -33,6 +37,8 @@ public class Producer
         /**
          * 模拟生产消息
          */
+
+        CountDownLatch countDownLatch = new CountDownLatch(15);
 
         /**
          * TOPIC_STAR, TAGS_STAR
@@ -50,6 +56,10 @@ public class Producer
                 catch (Exception e)
                 {
                     e.printStackTrace();
+                }
+                finally
+                {
+                    countDownLatch.countDown();
                 }
             }
         }).start();
@@ -71,6 +81,10 @@ public class Producer
                 {
                     e.printStackTrace();
                 }
+                finally
+                {
+                    countDownLatch.countDown();
+                }
             }
         }).start();
 
@@ -91,8 +105,14 @@ public class Producer
                 {
                     e.printStackTrace();
                 }
+                finally
+                {
+                    countDownLatch.countDown();
+                }
             }
         }).start();
+
+        countDownLatch.await();
 
         /**
          * 清除痕迹
